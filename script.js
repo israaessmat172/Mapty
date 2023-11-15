@@ -12,29 +12,51 @@ const inputCadence = document.querySelector('.form__input--cadence');
 const inputElevation = document.querySelector('.form__input--elevation');
 
 let map, mapEvent;
-if (navigator.geolocation)
-    navigator.geolocation.getCurrentPosition(
-        function(position) {
-            const { latitude } = position.coords;
-            const { longitude } = position.coords;
-            console.log(`https://www.google.com/maps/@${latitude},${longitude}`);
-            const coords = [latitude, longitude]
-            map = L.map('map').setView(coords, 13);
 
-            L.tileLayer('https://tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
+class App {
+    #map;
+    #mapEvent;
+    constructor() {
+        this._getPosition();
+    }
 
-            //Handling clicks on map
-            map.on('click', function(mapE) {
-                mapEvent = mapE;
-                form.classList.remove('hidden');
-                inputDistance.focus();
-            })
-        },
-        function() {
-            alert("We Can't get Your Position");
-        });
+    _getPosition() {
+        if (navigator.geolocation)
+            navigator.geolocation.getCurrentPosition(this._loadMap,
+
+                function() {
+                    alert("We Can't get Your Position");
+                });
+    }
+
+    _loadMap(position) {
+        const { latitude } = position.coords;
+        const { longitude } = position.coords;
+        console.log(`https://www.google.com/maps/@${latitude},${longitude}`);
+        const coords = [latitude, longitude]
+        this.#map = L.map('map').setView(coords, 13);
+
+        L.tileLayer('https://tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(this.#map);
+
+        //Handling clicks on map
+        this.#map.on('click', function(mapE) {
+            this.#mapEvent = mapE;
+            form.classList.remove('hidden');
+            inputDistance.focus();
+        })
+    }
+
+    _showForm() {}
+
+    _toggleElevationField() {}
+
+    _newWorkout() {}
+
+}
+
+const app = new App();
 
 form.addEventListener('submit', function(e) {
     e.preventDefault();
